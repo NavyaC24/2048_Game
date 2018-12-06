@@ -71,7 +71,7 @@ void LEDMatrix::disableLatch()
     latch->setLow();
 }
 
-void LEDMatrix::selectRow(uint8_t row)
+void LEDMatrix::selectRow(int row)
 {
     (row & 0x01) ? A->setHigh() : A->setLow();
     (row & 0x02) ? B->setHigh() : B->setLow();
@@ -82,45 +82,40 @@ void LEDMatrix::selectRow(uint8_t row)
 
 void LEDMatrix::clearPixel(int row, int column)
 {
-    writeBuffer[row][0] &= ~(1 << column);
-    writeBuffer[row][1] &= ~(1 << column);
-    writeBuffer[row][2] &= ~(1 << column);
+    uint64_t pixel = ~((uint64_t)1 << column);
+    writeBuffer[row][RedPlane]   &= pixel;
+    writeBuffer[row][GreenPlane] &= pixel;
+    writeBuffer[row][BluePlane]  &= pixel;
 }
 
 void LEDMatrix::setPixel(int row, int col, Colors color)
 {
+    uint64_t pixel = ((uint64_t)1 << col);
     if(color & 0x01) {
-        writeBuffer[row][0] |= (1 << col);  //Red
+        writeBuffer[row][RedPlane]   |= pixel;
     }
     if(color & 0x02) {
-        writeBuffer[row][1] |= (1 << col);  //Green
+        writeBuffer[row][GreenPlane] |= pixel;
     }
     if(color & 0x04) {
-        writeBuffer[row][2] |= (1 << col);  //Blue
+        writeBuffer[row][BluePlane]  |= pixel;
     }
 }
 
-void LEDMatrix::setRowData(uint8_t row, Colors color, uint64_t data)
+void LEDMatrix::setRowData(int row, Colors color, uint64_t data)
 {
-    char str[20];
-    sprintf(str, "%x",data);
-    printf("Size of DATA: %u\n", sizeof(data));
-    printf("Setting %s on row %u\n",str, row);
     if(color & 1) {
-        printf("Setting Red Color %x on row %d\n",data, row);
-        writeBuffer[row][0] = data;  //Red
+        writeBuffer[row][RedPlane] = data;
     }
     if(color & 2) {
-        printf("Setting Green Color %x on row %u\n",data, row);
-        writeBuffer[row][1] = data;  //Green
+        writeBuffer[row][GreenPlane] = data;
     }
     if(color & 4) {
-        printf("Setting Blue Color %x on row %u\n",data, row);
-        writeBuffer[row][2] = data;  //Blue
+        writeBuffer[row][BluePlane] = data;
     }
 }
 
-void LEDMatrix::setRowDataRaw(uint8_t row, ColorPlanes plane, uint64_t data)
+void LEDMatrix::setRowDataRaw(int row, ColorPlanes plane, uint64_t data)
 {
     writeBuffer[row][plane] = data;
 }
@@ -133,7 +128,7 @@ void LEDMatrix::clearFrameBuffers()
 
 void LEDMatrix::fillFrameBuffer(uint64_t data, Colors color)
 {
-    for(uint8_t i = 0; i < 63; i++) {
+    for(int i = 0; i < 64; i++) {
         setRowData(i, color, data);
     }
 }
@@ -148,23 +143,24 @@ void LEDMatrix::updateReadBuffer()
 void LEDMatrix::updateDisplay()
 {
     updateReadBuffer();
-    for(uint8_t i = 0; i < 32; i++) {
+    for(int i = 0; i < 32; i++) {
         disableDisplay();
         disableLatch();
         selectRow(i); //will select i and i + 32 rows at same time
 
-        for(int8_t j = 63; j >= 0; j--) {
-            ((readBuffer[i][0] >> j) & 1) ? r1->setHigh() : r1->setLow(); //shift in r1 data with msb getting shifted in first
-            ((readBuffer[i][1] >> j) & 1) ? g1->setHigh() : g1->setLow(); //g1 data
-            ((readBuffer[i][2] >> j) & 1) ? b1->setHigh() : b1->setLow(); //b1 data
+        for(int j = 63; j >= 0; j--) {
+            ((readBuffer[i][RedPlane]   >> j) & 1) ? r1->setHigh() : r1->setLow(); //shift in r1 data with msb getting shifted in first
+            ((readBuffer[i][GreenPlane] >> j) & 1) ? g1->setHigh() : g1->setLow(); //g1 data
+            ((readBuffer[i][BluePlane]  >> j) & 1) ? b1->setHigh() : b1->setLow(); //b1 data
 
-            ((readBuffer[i + 32][0] >> j) & 1) ? r2->setHigh() : r2->setLow(); //r2
-            ((readBuffer[i + 32][1] >> j) & 1) ? g2->setHigh() : g2->setLow(); //g2
-            ((readBuffer[i + 32][2] >> j) & 1) ? b2->setHigh() : b2->setLow(); //b2
+            ((readBuffer[i + 32][RedPlane]   >> j) & 1) ? r2->setHigh() : r2->setLow(); //r2
+            ((readBuffer[i + 32][GreenPlane] >> j) & 1) ? g2->setHigh() : g2->setLow(); //g2
+            ((readBuffer[i + 32][BluePlane]  >> j) & 1) ? b2->setHigh() : b2->setLow(); //b2
             clk->setHigh();  clk->setLow();//shift in all 3 color bits at once for top half/bottom half regs
         }
         //at this point, all 3 shift registers should be filled with corresponding row data in frameBuffer
         enableLatch(); //push shift register contents down to output registers
         enableDisplay();
+        delay_us(80);
     }
 }

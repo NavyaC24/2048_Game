@@ -11,6 +11,7 @@
 #include "gpio.hpp"
 #include "singleton_template.hpp"
 #include "stdio.h"
+#include "utilities.h"
 
 typedef struct {
     LPC1758_GPIO_Type A;
@@ -31,14 +32,14 @@ typedef struct {
     LPC1758_GPIO_Type b2;
 }LEDMatrixDisplayPincon;
 
-enum Colors {
+enum Colors { //RGB (000 => Off)
     Off,
-    Red,
-    Green,
-    x1,
     Blue,
+    Green,
+    Cyan,
+    Red,
     Pink,
-    x2,
+    Lime,
     White
 };
 
@@ -50,7 +51,6 @@ enum ColorPlanes {
 
 class LEDMatrix : public SingletonTemplate<LEDMatrix> {
     public:
-        LEDMatrix() {}
         friend class SingletonTemplate<LEDMatrix>;
 
         GPIO *A, *B, *C, *D, *E, *latch, *oe, *clk, *r1, *g1, *b1, *r2, *g2, *b2;
@@ -64,11 +64,11 @@ class LEDMatrix : public SingletonTemplate<LEDMatrix> {
         void enableLatch();
         void disableLatch();
         void clearFrameBuffers();
-        void selectRow(uint8_t row);
+        void selectRow(int row);
         void clearPixel(int row, int col);
         void setPixel(int row, int col, Colors color);
-        void setRowData(uint8_t row, Colors color, uint64_t = 0xFFFFFFFFFFFFFFFF);
-        void setRowDataRaw(uint8_t row, ColorPlanes plane, uint64_t data);
+        void setRowData(int row, Colors color, uint64_t = 0xFFFFFFFFFFFFFFFF);
+        void setRowDataRaw(int row, ColorPlanes plane, uint64_t data);
         void fillFrameBuffer(uint64_t data, Colors color);
         void updateReadBuffer();
         void updateDisplay();

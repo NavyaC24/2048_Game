@@ -2,26 +2,16 @@
  * main.cpp
  *
  *  Created on: Nov 26, 2018
- *      Author: Vishal
+ *      Author: Team 2048
  */
 
 /*
- *     SocialLedge.com - Copyright (C) 2013
+ *     This file is a part of project developed by Team 2048 as part of the curriculum
+ *     of the course CMPE 244 of SJSU in Fall 2018 semester.
  *
- *     This file is part of free software framework for embedded processors.
- *     You can use it and/or distribute it as long as this copyright header
- *     remains unmodified.  The code is free for personal use and requires
- *     permission to use in a commercial product.
- *
- *      THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- *      OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- *      MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- *      I SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL, OR
- *      CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
- *
- *     You can reach the author of this software at :
- *          p r e e t . w i k i @ g m a i l . c o m
- */
+ *     Usage of this file and/or the project is governed by the Apache 2.0 License agreement,
+ *     as mentioned in the LICENSE file.
+ *     /
 
 /**
  * @file
@@ -30,118 +20,61 @@
  *          @see L0_LowLevel/lpc_sys.h if you wish to override printf/scanf functions.
  *
  */
-#include "LEDMatrix.hpp"
+
 #include "tasks.hpp"
-#include "examples/examples.hpp"
 #include "io.hpp"
 #include <stdio.h>
 #include "LPC17xx.h"
 #include "gpio.hpp"
-#include "storage.hpp"
-#include "string.h"
-#include "time.h"
-#include "lpc_rit.h"
-#include "eint.h"
-#include "semphr.h"
-#include "math.h"
-#include "lpc_pwm.hpp"
 #include "GameLogic.hpp"
 #include "FreeRTOS.h"
-#include "utilities.h"
+#include "adc0.h"
+#include "string.h"
 
 LEDMatrixDisplayPincon displayPincon;
-LEDMatrix display = LEDMatrix::getInstance();
-GameLogic game;
-uint64_t data2 = 0x0000000000000001;
-uint64_t data1 = 0xFFFFFFFFFFFFFFFF;
-uint64_t line1 = 0xF0F0F0F0F0F0F0F0;
-uint64_t line2 = 0x0000000000000000;
-uint64_t buf[64][3] = {{line2, line2, line2}, {0x8001000200040008, 0xB89D713AE275C4E8, 0x8001000200040008},
-                       {0x8001000200040008, 0xC1838307060E0C18, 0x8001000200040008}, {0x8001000200040008, 0xF89FF13FE27FC4F8, 0x8001000200040008},
-                       {0x8001000200040008, 0x8891112222444488, 0x8001000200040008}, {0x8001000200040008, 0xF9DFF3BFE77FCEF8, 0x8001000200040008},
-                       {0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8}, {0x8001000200040008, 0xB89D713AE275C4E8, 0x8001000200040008},
-                       {0x8001000200040008, 0xC1838307060E0C18, 0x8001000200040008}, {0x8001000200040008, 0xF89FF13FE27FC4F8, 0x8001000200040008},
-                       {0x8001000200040008, 0x8891112222444488, 0x8001000200040008}, {0x8001000200040008, 0xF9DFF3BFE77FCEF8, 0x8001000200040008},
-                       {0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8}, {0x8001000200040008, 0xB89D713AE275C4E8, 0x8001000200040008},
-                       {0x8001000200040008, 0xC1838307060E0C18, 0x8001000200040008}, {0x8001000200040008, 0xF89FF13FE27FC4F8, 0x8001000200040008},
-                       {0x8001000200040008, 0x8891112222444488, 0x8001000200040008}, {0x8001000200040008, 0xF9DFF3BFE77FCEF8, 0x8001000200040008},
-                       {0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8}, {0x8001000200040008, 0xB89D713AE275C4E8, 0x8001000200040008},
-                       {0x8001000200040008, 0xC1838307060E0C18, 0x8001000200040008}, {0x8001000200040008, 0xF89FF13FE27FC4F8, 0x8001000200040008},
-                       {0x8001000200040008, 0x8891112222444488, 0x8001000200040008}, {0x8001000200040008, 0xF9DFF3BFE77FCEF8, 0x8001000200040008},
-                       {0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8, 0xFFFFFFFFFFFFFFF8}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}
-                    };
-uint64_t buf1[64][3] = {{0xCE25CE25CE25CE24, 0x0001000100010000, 0x0001000100010000},
-                       {0x2A6B2A6B2A6B2A6A, 0x0001000100010000, 0x0001000100010000}, {0x4AAF4AAF4AAF4AAE, 0x0001000100010000, 0x0001000100010000},
-                       {0x8AEB8AEB8AEB8AEA, 0x0001000100010000, 0x0001000100010000}, {0xEE24EE25EE25EE24, 0x0001000100010000, 0x0001000100010000},
-                       {0xFFFFFFFFFFFFFFFE, 0xFFFFFFFFFFFFFFFE, 0xFFFFFFFFFFFFFFFE}, {0xCE25CE25CE25CE24, 0x0001000100010000, 0x0001000100010000},
-                       {0x2A6B2A6B2A6B2A6A, 0x0001000100010000, 0x0001000100010000}, {0x4AAF4AAF4AAF4AAE, 0x0001000100010000, 0x0001000100010000},
-                       {0x8AEB8AEB8AEB8AEA, 0x0001000100010000, 0x0001000100010000}, {0xEE24EE25EE25EE24, 0x0001000100010000, 0x0001000100010000},
-                       {0xFFFFFFFFFFFFFFFE, 0xFFFFFFFFFFFFFFFE, 0xFFFFFFFFFFFFFFFE}, {0xCE25CE25CE25CE24, 0x0001000100010000, 0x0001000100010000},
-                       {0x2A6B2A6B2A6B2A6A, 0x0001000100010000, 0x0001000100010000}, {0x4AAF4AAF4AAF4AAE, 0x0001000100010000, 0x0001000100010000},
-                       {0x8AEB8AEB8AEB8AEA, 0x0001000100010000, 0x0001000100010000}, {0xEE24EE25EE25EE24, 0x0001000100010000, 0x0001000100010000},
-                       {0xFFFFFFFFFFFFFFFE, 0xFFFFFFFFFFFFFFFE, 0xFFFFFFFFFFFFFFFE}, {0xCE25CE25CE25CE24, 0x0001000100010000, 0x0001000100010000},
-                       {0x2A6B2A6B2A6B2A6A, 0x0001000100010000, 0x0001000100010000}, {0x4AAF4AAF4AAF4AAE, 0x0001000100010000, 0x0001000100010000},
-                       {0x8AEB8AEB8AEB8AEA, 0x0001000100010000, 0x0001000100010000}, {0xEE24EE25EE25EE24, 0x0001000100010000, 0x0001000100010000},
-                       {0,0,0}, {0,0,0}, {0,0,0}, {0xFFFF000000000000, 0xFFFF000000000000, 0xFFFF000000000000},
-                       {0xFFFF000000000000, 0xFFFF000000000000, 0xFFFF000000000000}, {0xFFFF000000000000, 0xFFFF000000000000, 0xFFFF000000000000},
-                       {0xFFFF000000000000, 0xFFFF000000000000, 0xFFFF000000000000}, {0xFFFF000000000000, 0xFFFF000000000000, 0xFFFF000000000000}
-                       };
-
-uint64_t deepak[64][3] = {{0xFFFF000000000000, 0xFFFF000000000000, 0x0000000000000000},
-        {0xFFFF000000000000, 0xFFFF000000000000, 0x0000000000000000}, {0xFFFF000000000000, 0xFFFF000000000000, 0x0000000000000000},
-        {0xFFFF000000000000, 0xFFFF000000000000, 0x0000000000000000}, {0xFFFF000000000000, 0xFFFF000000000000, 0x0000000000000000}};
-
-uint64_t xyz[] = {0xE0E0E0E0E0E0E0E0, 0x1010101010101010, 0x7070707070707070, 0x8080808080808080, 0xF0F0F0F0F0F0F0F0, 0x0000000000000000};
-static void refresh()
-{
-    display.updateDisplay();
-}
-
-void displayLine(uint64_t (*d)[3], int row)
-{
-    display.disableDisplay();
-    display.disableLatch();
-    display.selectRow(row);
-    for(int j = 63; j >= 0; j--) {
-        ((d[row][RedPlane]   >> j) & 1) ? display.r1->setHigh() : display.r1->setLow();
-        ((d[row][GreenPlane] >> j) & 1) ? display.g1->setHigh() : display.g1->setLow();
-        ((d[row][BluePlane]  >> j) & 1) ? display.b1->setHigh() : display.b1->setLow();
-        ((d[row][RedPlane]   >> j) & 0) ? display.r2->setHigh() : display.r2->setLow();
-        ((d[row][GreenPlane] >> j) & 0) ? display.g2->setHigh() : display.b2->setLow();
-        ((d[row][BluePlane]  >> j) & 0) ? display.b2->setHigh() : display.g2->setLow();
-        display.clk->setHigh(); display.clk->setLow();
-    }
-    display.enableLatch();
-    display.enableDisplay();
-}
-
-void displayLine1(uint64_t d, int row)
-{
-    display.disableDisplay();
-    display.disableLatch();
-    display.selectRow(row);
-    for(int j = 63; j >= 0; j--) {
-        ((d >> j) & 1) ? display.r1->setHigh() : display.r1->setLow();
-        ((d >> j) & 0) ? display.g1->setHigh() : display.g1->setLow();
-        ((d >> j) & 0) ? display.b1->setHigh() : display.b1->setLow();
-        ((d >> j) & 1) ? display.r2->setHigh() : display.r2->setLow();
-        ((d >> j) & 0) ? display.g2->setHigh() : display.b2->setLow();
-        ((d >> j) & 0) ? display.b2->setHigh() : display.g2->setLow();
-        display.clk->setHigh(); display.clk->setLow();
-    }
-    display.enableLatch();
-    display.enableDisplay();
-}
+DisplayApp displayApp;
+GameLogic game(&displayApp);
+uint16_t xvalue;
+uint16_t yvalue;
 
 void displayTask(void *p)
 {
     while(1) {
-        for(int i = 0; i < 32; i++) {
-           displayLine(buf1, i);
-           delay_us(40);
-        }
+        printf("Changing grid\n");
+        int game_grid2[4][4] = {{0, 2, 0, 0},
+                                {0, 0, 2, 0},
+                                {0, 0, 0, 0},
+                                {0, 0, 0, 0}};
+        memcpy(game.grid, game_grid2, sizeof(game_grid2));
+        game.updateGrid();
+        vTaskDelay(2000);
+        printf("Changing grid\n");
+        int game_grid3[4][4] = {{2, 0, 0, 0},
+                                {0, 2, 0, 2},
+                                {0, 0, 0, 0},
+                                {0, 0, 0, 0}};
+        memcpy(game.grid, game_grid3, sizeof(game_grid3));
+        game.updateGrid();
+        vTaskDelay(2000);
+        printf("Changing grid\n");
+        int game_grid4[4][4] = {{2, 0, 0, 0},
+                                {4, 0, 0, 0},
+                                {0, 0, 0, 4},
+                                {0, 0, 0, 0}};
+        memcpy(game.grid, game_grid4, sizeof(game_grid4));
+        game.updateGrid();
+        vTaskDelay(2000);
     }
 }
+
+void displayTask2(void *p)
+{
+    while(1) {
+        displayApp.updateDisplay();
+        vTaskDelay(6);
+    }
+}
+
 
 int main(void)
 {
@@ -168,11 +101,13 @@ int main(void)
     displayPincon.g2 = P1_22;
     displayPincon.b2 = P1_20;
 
-    display.init(displayPincon);
-    game.drawGridBorders();
-    xTaskCreate(displayTask, "LEDTask", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
+    displayApp.initDisplay(displayPincon);
+//    xTaskCreate(displayTask, "LEDTask", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
+    xTaskCreate(displayTask2, "LEDTask2", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
 
-    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
-    scheduler_start(); ///< This shouldn't return
+    //scheduler_add_task(new terminalTask(PRIORITY_HIGH));
+    //scheduler_start(); ///< This shouldn't return
+
+    vTaskStartScheduler();
     return -1;
 }
