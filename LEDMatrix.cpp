@@ -92,26 +92,26 @@ void LEDMatrix::setPixel(int row, int col, Colors color)
 {
     uint64_t pixel = ((uint64_t)1 << col);
     if(color & 0x01) {
-        writeBuffer[row][RedPlane]   |= pixel;
+        writeBuffer[row][BluePlane]  |= pixel;
     }
     if(color & 0x02) {
         writeBuffer[row][GreenPlane] |= pixel;
     }
     if(color & 0x04) {
-        writeBuffer[row][BluePlane]  |= pixel;
+        writeBuffer[row][RedPlane]   |= pixel;
     }
 }
 
 void LEDMatrix::setRowData(int row, Colors color, uint64_t data)
 {
-    if(color & 1) {
-        writeBuffer[row][RedPlane] = data;
+    if(color & 0x01) {
+        writeBuffer[row][BluePlane]  = data;
     }
-    if(color & 2) {
+    if(color & 0x02) {
         writeBuffer[row][GreenPlane] = data;
     }
-    if(color & 4) {
-        writeBuffer[row][BluePlane] = data;
+    if(color & 0x04) {
+        writeBuffer[row][RedPlane]   = data;
     }
 }
 
@@ -163,4 +163,5 @@ void LEDMatrix::updateDisplay()
         enableDisplay();
         delay_us(80);
     }
+    //disableDisplay();
 }

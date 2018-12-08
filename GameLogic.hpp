@@ -5,19 +5,24 @@
  *      Author: Vishal
  */
 
-#ifndef GAME_LOGIC_HPP
-#define GAME_LOGIC_HPP
+#ifndef GAME_HPP
+#define GAME_HPP
 
 #include "DisplayApp.hpp"
+#include "JoystickApp.hpp"
 
-class GameLogic {
+
+class Game {
     public:
         int grid[4][4];
+        int score;
         DisplayApp *displayApp;
 
     public:
-        GameLogic(DisplayApp *displayApp);
+        Game(DisplayApp *displayApp);
         void updateGrid();
+        void run();
+        void moveTiles(Directions inputDirection);
 };
 
 #endif

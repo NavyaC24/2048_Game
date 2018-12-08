@@ -28,46 +28,14 @@
 #include "gpio.hpp"
 #include "GameLogic.hpp"
 #include "FreeRTOS.h"
-#include "adc0.h"
-#include "string.h"
+#include "JoystickApp.hpp"
 
 LEDMatrixDisplayPincon displayPincon;
 DisplayApp displayApp;
-GameLogic game(&displayApp);
-uint16_t xvalue;
-uint16_t yvalue;
+Game game(&displayApp);
+JoystickApp js(3, 5, k0_26, k1_31);
 
 void displayTask(void *p)
-{
-    while(1) {
-        printf("Changing grid\n");
-        int game_grid2[4][4] = {{0, 2, 0, 0},
-                                {0, 0, 2, 0},
-                                {0, 0, 0, 0},
-                                {0, 0, 0, 0}};
-        memcpy(game.grid, game_grid2, sizeof(game_grid2));
-        game.updateGrid();
-        vTaskDelay(2000);
-        printf("Changing grid\n");
-        int game_grid3[4][4] = {{2, 0, 0, 0},
-                                {0, 2, 0, 2},
-                                {0, 0, 0, 0},
-                                {0, 0, 0, 0}};
-        memcpy(game.grid, game_grid3, sizeof(game_grid3));
-        game.updateGrid();
-        vTaskDelay(2000);
-        printf("Changing grid\n");
-        int game_grid4[4][4] = {{2, 0, 0, 0},
-                                {4, 0, 0, 0},
-                                {0, 0, 0, 4},
-                                {0, 0, 0, 0}};
-        memcpy(game.grid, game_grid4, sizeof(game_grid4));
-        game.updateGrid();
-        vTaskDelay(2000);
-    }
-}
-
-void displayTask2(void *p)
 {
     while(1) {
         displayApp.updateDisplay();
@@ -75,6 +43,15 @@ void displayTask2(void *p)
     }
 }
 
+void gameLogic(void *p)
+{
+    game.generate();
+    while(1) {
+        game.updateGrid();
+        game.moveTiles(js.getDirection());
+        vTaskDelay(150);
+    }
+}
 
 int main(void)
 {
@@ -102,8 +79,8 @@ int main(void)
     displayPincon.b2 = P1_20;
 
     displayApp.initDisplay(displayPincon);
-//    xTaskCreate(displayTask, "LEDTask", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
-    xTaskCreate(displayTask2, "LEDTask2", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
+    xTaskCreate(displayTask, "LEDTask2", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
+    xTaskCreate(gameLogic, "LEDTask2", STACK_SIZE, 0, PRIORITY_MEDIUM, NULL);
 
     //scheduler_add_task(new terminalTask(PRIORITY_HIGH));
     //scheduler_start(); ///< This shouldn't return
