@@ -32,14 +32,14 @@
 
 LEDMatrixDisplayPincon displayPincon;
 DisplayApp displayApp;
-Game game(&displayApp);
 JoystickApp js(3, 5, k0_26, k1_31);
+Game game(&displayApp, &js);
 
 void displayTask(void *p)
 {
     while(1) {
         displayApp.updateDisplay();
-        vTaskDelay(6);
+        vTaskDelay(4);
     }
 }
 
@@ -47,8 +47,7 @@ void gameLogic(void *p)
 {
     game.generate();
     while(1) {
-        game.updateGrid();
-        game.moveTiles(js.getDirection());
+        game.run();
         vTaskDelay(150);
     }
 }
@@ -79,11 +78,11 @@ int main(void)
     displayPincon.b2 = P1_20;
 
     displayApp.initDisplay(displayPincon);
-    xTaskCreate(displayTask, "LEDTask2", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
-    xTaskCreate(gameLogic, "LEDTask2", STACK_SIZE, 0, PRIORITY_MEDIUM, NULL);
+    xTaskCreate(displayTask, "Display", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
+    xTaskCreate(gameLogic, "Input", STACK_SIZE, 0, PRIORITY_MEDIUM, NULL);
 
-    //scheduler_add_task(new terminalTask(PRIORITY_HIGH));
-    //scheduler_start(); ///< This shouldn't return
+    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
+    scheduler_start(); ///< This shouldn't return
 
     vTaskStartScheduler();
     return -1;

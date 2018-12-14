@@ -32,7 +32,7 @@ typedef struct {
     LPC1758_GPIO_Type b2;
 }LEDMatrixDisplayPincon;
 
-enum Colors { //RGB (000 => Off)
+enum Color { //RGB (000 => Off)
     Off,
     Blue,
     Green,
@@ -43,7 +43,7 @@ enum Colors { //RGB (000 => Off)
     White
 };
 
-enum ColorPlanes {
+enum ColorPlane {
     RedPlane,
     GreenPlane,
     BluePlane
@@ -66,10 +66,10 @@ class LEDMatrix : public SingletonTemplate<LEDMatrix> {
         void clearFrameBuffers();
         void selectRow(int row);
         void clearPixel(int row, int col);
-        void setPixel(int row, int col, Colors color);
-        void setRowData(int row, Colors color, uint64_t = 0xFFFFFFFFFFFFFFFF);
-        void setRowDataRaw(int row, ColorPlanes plane, uint64_t data);
-        void fillFrameBuffer(uint64_t data, Colors color);
+        void setPixel(int row, int col, Color color);
+        void setRowData(int row, Color color, uint64_t = 0xFFFFFFFFFFFFFFFF);
+        void setRowDataRaw(int row, ColorPlane plane, uint64_t data);
+        void fillFrameBuffer(uint64_t data, Color color);
         void updateReadBuffer();
         void updateDisplay();
 };

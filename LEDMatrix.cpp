@@ -11,6 +11,7 @@
 #include "LEDMatrix.hpp"
 #include "inttypes.h"
 
+
 void LEDMatrix:: init(LEDMatrixDisplayPincon &pincon)
 {
     //Address lines
@@ -88,7 +89,7 @@ void LEDMatrix::clearPixel(int row, int column)
     writeBuffer[row][BluePlane]  &= pixel;
 }
 
-void LEDMatrix::setPixel(int row, int col, Colors color)
+void LEDMatrix::setPixel(int row, int col, Color color)
 {
     uint64_t pixel = ((uint64_t)1 << col);
     if(color & 0x01) {
@@ -102,7 +103,7 @@ void LEDMatrix::setPixel(int row, int col, Colors color)
     }
 }
 
-void LEDMatrix::setRowData(int row, Colors color, uint64_t data)
+void LEDMatrix::setRowData(int row, Color color, uint64_t data)
 {
     if(color & 0x01) {
         writeBuffer[row][BluePlane]  = data;
@@ -115,7 +116,7 @@ void LEDMatrix::setRowData(int row, Colors color, uint64_t data)
     }
 }
 
-void LEDMatrix::setRowDataRaw(int row, ColorPlanes plane, uint64_t data)
+void LEDMatrix::setRowDataRaw(int row, ColorPlane plane, uint64_t data)
 {
     writeBuffer[row][plane] = data;
 }
@@ -126,7 +127,7 @@ void LEDMatrix::clearFrameBuffers()
     memset(readBuffer, 0, sizeof(readBuffer));
 }
 
-void LEDMatrix::fillFrameBuffer(uint64_t data, Colors color)
+void LEDMatrix::fillFrameBuffer(uint64_t data, Color color)
 {
     for(int i = 0; i < 64; i++) {
         setRowData(i, color, data);
@@ -157,11 +158,12 @@ void LEDMatrix::updateDisplay()
             ((readBuffer[i + 32][GreenPlane] >> j) & 1) ? g2->setHigh() : g2->setLow(); //g2
             ((readBuffer[i + 32][BluePlane]  >> j) & 1) ? b2->setHigh() : b2->setLow(); //b2
             clk->setHigh();  clk->setLow();//shift in all 3 color bits at once for top half/bottom half regs
+            enableLatch(); disableLatch();
         }
         //at this point, all 3 shift registers should be filled with corresponding row data in frameBuffer
         enableLatch(); //push shift register contents down to output registers
         enableDisplay();
         delay_us(80);
     }
-    //disableDisplay();
+    disableDisplay();
 }

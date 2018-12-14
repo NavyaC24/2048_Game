@@ -11,8 +11,15 @@
 #include "stdint.h"
 #include "LEDMatrix.hpp"
 #include <map>
+#include <string>
 
-typedef std::map<int, Colors> ColorMap;
+using namespace std;
+typedef std::map<int, Color> ColorMap;
+
+enum FontType {
+    SmallFont,
+    BigFont
+};
 
 class DisplayApp {
     private:
@@ -23,10 +30,17 @@ class DisplayApp {
         void updateDisplay();
         void displayStartScreen();
         void displayEndScreen();
-        void paintGrid(int (*grid)[4], ColorMap &colorMap);
-        void paintGridBorders(Colors color);
-        void paintOneBlock(int num, Colors color, int start_row, int start_pixel);
-        void paintOneDigit(int digit, Colors color, int start_row, int start_pixel);
+        void displayGrid(int (*grid)[4], ColorMap &colorMap);
+        void displayGridBorders(Color color);
+        void displayNumber(int num, Color color, int start_row, int start_pixel, FontType font);
+        void displayDigit(int digit, Color color, int start_row, int start_pixel, FontType font);
+        void displayString(string s, Color color, int start_row, int start_pixel);
+        void displayCharacter(char c, Color color, int start_row, int start_pixel);
+        void displayNumberSmallFont(int num, Color color, int start_row, int start_pixel);
+        void displayNumberBigFont(int num, Color color, int start_row, int start_pixel);
+        void displayDigitSmallFont(int digit, Color color, int start_row, int start_pixel);
+        void displayDigitBigFont(int digit, Color color, int start_row, int start_pixel);
+        void drawBox(int xMin, int yMin, int xMax, int yMax, Color color);
 };
 
 #endif

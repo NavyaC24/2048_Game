@@ -9,32 +9,28 @@
 #define GAME_HPP
 
 #include "DisplayApp.hpp"
-
-enum Directions {
-    Still,
-    Up,
-    Down,
-    Right,
-    Left
-};
+#include "input.hpp"
 
 class Game {
     public:
         int grid[4][4];
         int score;
+        bool moved;
         DisplayApp *displayApp;
+        Input *input;
 
     public:
-        Game(DisplayApp *displayApp);
+        Game(DisplayApp *displayApp, Input *gameInput);
         void updateGrid();
         void run();
-        void moveTiles(Directions inputDirection);
+        void displayScore();
+        bool moveTiles(Directions inputDirection);
         void rotate();
         void generate();
-        void moveUp();
-        void moveDown();
-        void moveLeft();
-        void moveRight();
+        bool moveUp();
+        bool moveDown();
+        bool moveLeft();
+        bool moveRight();
 };
 
 #endif
