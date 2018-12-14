@@ -15,7 +15,7 @@ class Game {
     public:
         int grid[4][4];
         int score;
-        bool moved;
+        bool moved, merged;
         DisplayApp *displayApp;
         Input *input;
 
@@ -27,10 +27,11 @@ class Game {
         bool moveTiles(Directions inputDirection);
         void rotate();
         void generate();
-        bool moveUp();
-        bool moveDown();
-        bool moveLeft();
-        bool moveRight();
+        void moveUp();
+        void moveDown();
+        void moveLeft();
+        void moveRight();
+        bool gridFull();
 };
 
 #endif

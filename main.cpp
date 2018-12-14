@@ -39,12 +39,13 @@ void displayTask(void *p)
 {
     while(1) {
         displayApp.updateDisplay();
-        vTaskDelay(4);
+        vTaskDelay(7);
     }
 }
 
 void gameLogic(void *p)
 {
+    game.generate();
     game.generate();
     while(1) {
         game.run();

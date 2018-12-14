@@ -19,12 +19,10 @@ extern char big_letters[26][7][5];
 
 void getDigitsFromNumber(int num, std::vector<int>&digits)
 {
-    std::vector<int>::iterator it;
-
-    while(num) {
+    do {
         digits.insert(digits.begin(), num % 10);
         num /= 10;
-    }
+    } while(num);
 }
 
 void DisplayApp::initDisplay(LEDMatrixDisplayPincon &pincon)
@@ -167,7 +165,13 @@ void DisplayApp::displayString(string s, Color color, int start_row, int start_p
 {
     size_t len = s.size();
 
+    //printf("Printing: %s\n", s.c_str());
     for(int i = 0; i < len; i++) {
+        if(s[i] == ' ') {
+            start_pixel += 6;
+            continue;
+        }
+
         displayCharacter(s[i], color, start_row, start_pixel);
         start_pixel += 6;
     }
