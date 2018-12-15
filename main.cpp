@@ -82,8 +82,8 @@ int main(void)
     xTaskCreate(displayTask, "Display", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
     xTaskCreate(gameLogic, "Input", STACK_SIZE, 0, PRIORITY_MEDIUM, NULL);
 
-    scheduler_add_task(new terminalTask(PRIORITY_HIGH));
-    scheduler_start(); ///< This shouldn't return
+    //scheduler_add_task(new terminalTask(PRIORITY_HIGH));
+    //scheduler_start(); ///< This shouldn't return
 
     vTaskStartScheduler();
     return -1;

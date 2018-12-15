@@ -165,10 +165,9 @@ void DisplayApp::displayString(string s, Color color, int start_row, int start_p
 {
     size_t len = s.size();
 
-    //printf("Printing: %s\n", s.c_str());
     for(int i = 0; i < len; i++) {
         if(s[i] == ' ') {
-            start_pixel += 6;
+            start_pixel += 5;
             continue;
         }
 

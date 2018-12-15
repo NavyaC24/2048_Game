@@ -11,11 +11,10 @@ ColorMap colorMap = {{2, Red}, {4, Lime}, {8, Blue}, {16, Pink}, {32, Cyan}, {64
 
 Game::Game(DisplayApp *app, Input *gameInput)
 {
+    input = gameInput;
     displayApp = app;
     score = 0;
     moved = false;
-    merged = false;
-    input = gameInput;
     memset(grid, 0, sizeof(grid));
 }
 
@@ -28,10 +27,49 @@ void Game::run()
 
     updateGrid();
 
-    if(!(merged || moved) && gridFull()) {
-        //printf("Not merged AND Not moved");
+    if(gameEnd()) {
         displayApp->displayString(title, Blue, 51, 4);
     }
+}
+
+bool Game::findThePair()
+{
+    bool found = false;
+
+    for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 3; y++) {
+            if (grid[x][y] == grid[x][y + 1]) {
+                return true;
+            }
+        }
+    }
+
+    return found;
+}
+
+bool Game::gameEnd()
+{
+    bool end = true;
+
+    if (!gridFull()) {
+        return false;
+    }
+
+    if (findThePair()) {
+        return false;
+    }
+
+    rotate();
+
+    if (findThePair()) {
+        end = false;
+    }
+
+    rotate();
+    rotate();
+    rotate();
+
+    return end;
 }
 
 bool Game::gridFull()
@@ -64,10 +102,7 @@ void Game::displayScore()
 bool Game::moveTiles(Directions direction)
 {
     moved = false;
-    merged = false;
 
-    printf("Before: Merged: %d\n",merged);
-    printf("Before: Moved: %d\n",moved);
     if(direction == Up) {
         moveUp();
     } else if(direction == Down) {
@@ -78,8 +113,6 @@ bool Game::moveTiles(Directions direction)
         moveRight();
     }
 
-    printf("After: Merged: %d\n",merged);
-    printf("After: Moved: %d\n",moved);
     return moved;
 }
 
@@ -101,7 +134,7 @@ void Game::generate()
     int no,k,l;
     bool generated = false;
 
-    while(!generated){
+    while(!generated) {
         k = rand() % 4;
         l = rand() % 4;
         if(grid[k][l] == 0) {
@@ -131,7 +164,6 @@ void Game::moveUp()
                     score += grid[j][k];
                     tmp = -1;
                     j++;
-                    merged = true;
                     moved = true;
                 } else {
                     grid[j][k] = tmp;
@@ -158,20 +190,17 @@ void Game::moveDown()
 {
     int i, j, k, tmp;
 
-    for(k = 0; k < 4; k++)//column
-    {
+    for(k = 0; k < 4; k++) {
         tmp = -1, j = 3;
-        for(i = 3; i >= 0; i--)//row
-        {
-            if(grid[i][k] != 0){
-                if(tmp == -1){
+        for(i = 3; i >= 0; i--) {
+            if(grid[i][k] != 0) {
+                if(tmp == -1) {
                     tmp = grid[i][k];
-                } else if((tmp) && (grid[i][k] == tmp)){
+                } else if((tmp) && (grid[i][k] == tmp)) {
                     grid[j][k] = tmp + tmp;
                     score += grid[j][k];
                     tmp = -1;
                     j--;
-                    merged = true;
                     moved = true;
                 } else {
                     grid[j][k] = tmp;

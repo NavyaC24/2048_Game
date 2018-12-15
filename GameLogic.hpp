@@ -15,7 +15,7 @@ class Game {
     public:
         int grid[4][4];
         int score;
-        bool moved, merged;
+        bool moved;
         DisplayApp *displayApp;
         Input *input;
 
@@ -32,6 +32,8 @@ class Game {
         void moveLeft();
         void moveRight();
         bool gridFull();
+        bool findThePair();
+        bool gameEnd();
 };
 
 #endif
