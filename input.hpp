@@ -7,7 +7,7 @@
 #ifndef INPUT_HPP
 #define INPUT_HPP
 
-enum Directions {
+enum Direction {
         Still,
         Up,
         Down,
@@ -17,7 +17,7 @@ enum Directions {
 
 class Input {
 public:
-    virtual Directions getDirection() = 0;
+    virtual Direction getDirection() = 0;
     virtual bool selectPressed() = 0;
 };
 

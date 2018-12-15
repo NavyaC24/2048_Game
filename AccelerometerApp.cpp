@@ -8,9 +8,9 @@
 #include "AccelerometerApp.hpp"
 #include "stdint.h"
 
-Directions AccelerometerApp::getDirection()
+Direction AccelerometerApp::getDirection()
 {
-    Directions direction;
+    Direction direction;
     int16_t x = acc_sense.getX();
     int16_t y = acc_sense.getY();
 
@@ -32,7 +32,7 @@ Directions AccelerometerApp::getDirection()
 bool AccelerometerApp::selectPressed()
 {
     bool selected = false;
-    Directions dir = getDirection();
+    Direction dir = getDirection();
 
     if(dir == Right || dir == Left) {
         selected = true;
@@ -43,5 +43,5 @@ bool AccelerometerApp::selectPressed()
 
 AccelerometerApp::~AccelerometerApp()
 {
-
+    //Nothing to do. Just chill!
 }

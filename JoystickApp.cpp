@@ -6,12 +6,12 @@
 #include "JoystickApp.hpp"
 #include "stdio.h"
 
-JoystickApp::JoystickApp(uint8_t Xchannel, uint8_t Ychannel, Pins pinX, Pins pinY)
+JoystickApp::JoystickApp(Pin pinX, Pin pinY)
 {
-    JS = new Joystick(Xchannel, Ychannel, pinX, pinY);
+    JS = new Joystick(pinX, pinY);
 }
 
-Directions JoystickApp::getDirection()
+Direction JoystickApp::getDirection()
 {
     uint16_t x,y;
 
@@ -34,7 +34,7 @@ Directions JoystickApp::getDirection()
 bool JoystickApp::selectPressed()
 {
     bool selected = false;
-    Directions dir = getDirection();
+    Direction dir = getDirection();
 
     if(dir == Right || dir == Left) {
         selected = true;

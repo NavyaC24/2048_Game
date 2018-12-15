@@ -12,13 +12,14 @@
 #include "input.hpp"
 
 class JoystickApp : public Input {
-public:
-    virtual ~JoystickApp();
-    JoystickApp(uint8_t Xchannel, uint8_t Ychannel, Pins pinX, Pins pinY);
-    Directions getDirection();
-    bool selectPressed();
 private:
     Joystick *JS;
+
+public:
+    virtual ~JoystickApp();
+    JoystickApp(Pin pinX, Pin pinY);
+    Direction getDirection();
+    bool selectPressed();
 };
 
 #endif /* JOYSTICKAPP_HPP_ */

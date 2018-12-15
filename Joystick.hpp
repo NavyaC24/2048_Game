@@ -9,7 +9,7 @@
 
 #include "stdint.h"
 
-enum Pins {
+enum Pin {
         k0_25,       // AD0.2 <-- Light Sensor -->
         k0_26,       // AD0.3
         k1_30,       // AD0.4
@@ -19,9 +19,11 @@ enum Pins {
 class Joystick {
 private:
     uint8_t channelX, channelY;
+
 public:
-    Joystick(uint8_t channelX, uint8_t channelY, Pins pinX, Pins pinY);
-    void selectPin(Pins pin);
+    Joystick(Pin pinX, Pin pinY);
+    void selectPin(Pin pin);
+    uint8_t getChannelNumberOfPin(Pin pin);
     uint16_t getX();
     uint16_t getY();
 };

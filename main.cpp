@@ -3,17 +3,12 @@
  *
  *  Created on: Nov 26, 2018
  *      Author: Team 2048
- */
-
-/*
+ *
  *     This file is a part of project developed by Team 2048 as part of the curriculum
  *     of the course CMPE 244 of SJSU in Fall 2018 semester.
  *
- *     Usage of this file and/or the project is governed by the Apache 2.0 License agreement,
- *     as mentioned in the LICENSE file.
- *     /
-
-/**
+ *     Usage of this file and/or the project is governed by the Apache 2.0 License agreement.
+ *
  * @file
  * @brief This is the application entry point.
  *          FreeRTOS and stdio printf is pre-configured to use uart0_min.h before main() enters.
@@ -30,9 +25,12 @@
 #include "FreeRTOS.h"
 #include "JoystickApp.hpp"
 
+void gameLogicTask(void *p);
+void displayTask(void *p);
+
 LEDMatrixDisplayPincon displayPincon;
 DisplayApp displayApp;
-JoystickApp js(3, 5, k0_26, k1_31);
+JoystickApp js(k0_26, k1_31);
 Game game(&displayApp, &js);
 
 void displayTask(void *p)
@@ -43,10 +41,10 @@ void displayTask(void *p)
     }
 }
 
-void gameLogic(void *p)
+void gameLogicTask(void *p)
 {
-    game.generate();
-    game.generate();
+    game.generateNewTile();
+    game.generateNewTile();
     while(1) {
         game.run();
         vTaskDelay(150);
@@ -80,7 +78,7 @@ int main(void)
 
     displayApp.initDisplay(displayPincon);
     xTaskCreate(displayTask, "Display", STACK_SIZE, 0, PRIORITY_HIGH, NULL);
-    xTaskCreate(gameLogic, "Input", STACK_SIZE, 0, PRIORITY_MEDIUM, NULL);
+    xTaskCreate(gameLogicTask, "Game", STACK_SIZE, 0, PRIORITY_MEDIUM, NULL);
 
     //scheduler_add_task(new terminalTask(PRIORITY_HIGH));
     //scheduler_start(); ///< This shouldn't return

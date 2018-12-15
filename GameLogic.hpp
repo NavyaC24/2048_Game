@@ -12,28 +12,28 @@
 #include "input.hpp"
 
 class Game {
-    public:
-        int grid[4][4];
-        int score;
-        bool moved;
-        DisplayApp *displayApp;
-        Input *input;
+private:
+    int grid[4][4];
+    int score;
+    bool moved;
+    DisplayApp *displayApp;
+    Input *input;
 
-    public:
-        Game(DisplayApp *displayApp, Input *gameInput);
-        void updateGrid();
-        void run();
-        void displayScore();
-        bool moveTiles(Directions inputDirection);
-        void rotate();
-        void generate();
-        void moveUp();
-        void moveDown();
-        void moveLeft();
-        void moveRight();
-        bool gridFull();
-        bool findThePair();
-        bool gameEnd();
+public:
+    Game(DisplayApp *displayApp, Input *gameInput);
+    void updateScreen();
+    void run();
+    void generateNewTile();
+    bool moveTiles(Direction inputDirection);
+    void displayScore();
+    void rotate();
+    void moveUp();
+    void moveDown();
+    void moveLeft();
+    void moveRight();
+    bool gridIsFull();
+    bool anyPairsPresent();
+    bool gameEnded();
 };
 
 #endif

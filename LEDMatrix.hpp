@@ -50,12 +50,11 @@ enum ColorPlane {
 };
 
 class LEDMatrix : public SingletonTemplate<LEDMatrix> {
-    public:
+    private:
         friend class SingletonTemplate<LEDMatrix>;
 
         GPIO *A, *B, *C, *D, *E, *latch, *oe, *clk, *r1, *g1, *b1, *r2, *g2, *b2;
-        uint64_t writeBuffer[64][3]; //Use this buffer for writing data into it
-        uint64_t readBuffer[64][3];  //Use this buffer to read data from it and dump onto display
+        uint64_t farmeBuffer[64][3];  //64 rows of 3 64 bit integers, for RGB color control of each row
 
     public:
         void init(LEDMatrixDisplayPincon &);
@@ -63,15 +62,14 @@ class LEDMatrix : public SingletonTemplate<LEDMatrix> {
         void disableDisplay();
         void enableLatch();
         void disableLatch();
-        void clearFrameBuffers();
+        void clearFrameBuffer();
+        void updateDisplay();
         void selectRow(int row);
         void clearPixel(int row, int col);
         void setPixel(int row, int col, Color color);
         void setRowData(int row, Color color, uint64_t = 0xFFFFFFFFFFFFFFFF);
-        void setRowDataRaw(int row, ColorPlane plane, uint64_t data);
+        void setRowDataRaw(int row, ColorPlane plane, uint64_t data); //If you know what you're doing!
         void fillFrameBuffer(uint64_t data, Color color);
-        void updateReadBuffer();
-        void updateDisplay();
 };
 
 #endif /* LEDMATRIX_HPP_ */

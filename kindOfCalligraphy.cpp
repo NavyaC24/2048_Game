@@ -4,6 +4,7 @@
  *  Created on: Dec 13, 2018
  *      Author: Vishal
  */
+
 char small_digits[][5][3] = {    {1,1,1,    //0
                                    1,0,1,
                                    1,0,1,

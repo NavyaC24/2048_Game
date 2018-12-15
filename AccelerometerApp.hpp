@@ -10,11 +10,12 @@
 #include "input.hpp"
 #include "io.hpp"
 
-class AccelerometerApp : public Input{
+class AccelerometerApp : public Input {
 private:
     Acceleration_Sensor acc_sense = Acceleration_Sensor::getInstance();
+
 public:
-    Directions getDirection();
+    Direction getDirection();
     bool selectPressed();
     virtual ~AccelerometerApp();
 };

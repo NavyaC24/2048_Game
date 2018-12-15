@@ -22,20 +22,18 @@ void Game::run()
 {
     string title("GAME OVER");
     if(moveTiles(input->getDirection())) {
-        generate();
+        generateNewTile();
     }
 
-    updateGrid();
+    updateScreen();
 
-    if(gameEnd()) {
-        displayApp->displayString(title, Blue, 51, 4);
+    if(gameEnded()) {
+        displayApp->displayString(title, Red, 51, 4);
     }
 }
 
-bool Game::findThePair()
+bool Game::anyPairsPresent()
 {
-    bool found = false;
-
     for (int x = 0; x < 4; x++) {
         for (int y = 0; y < 3; y++) {
             if (grid[x][y] == grid[x][y + 1]) {
@@ -44,24 +42,24 @@ bool Game::findThePair()
         }
     }
 
-    return found;
+    return false;
 }
 
-bool Game::gameEnd()
+bool Game::gameEnded()
 {
     bool end = true;
 
-    if (!gridFull()) {
+    if (!gridIsFull()) {
         return false;
     }
 
-    if (findThePair()) {
+    if (anyPairsPresent()) {
         return false;
     }
 
     rotate();
 
-    if (findThePair()) {
+    if (anyPairsPresent()) {
         end = false;
     }
 
@@ -72,7 +70,7 @@ bool Game::gameEnd()
     return end;
 }
 
-bool Game::gridFull()
+bool Game::gridIsFull()
 {
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
@@ -85,7 +83,7 @@ bool Game::gridFull()
     return true;
 }
 
-void Game::updateGrid()
+void Game::updateScreen()
 {
     displayApp->displayGrid(grid, colorMap);
     displayScore();
@@ -93,13 +91,14 @@ void Game::updateGrid()
 
 void Game::displayScore()
 {
+    //Sorry for the magic numbers here! Display Application is badly developed.
     string title("SCORE");
-    displayApp->drawBox(15, 30, 47, 49, Red);
-    displayApp->displayString(title, Blue, 32, 18);
-    displayApp->displayNumber(score, Green, 41, 18, BigFont);
+    displayApp->drawBox(16, 25, 48, 44, Red);
+    displayApp->displayString(title, Blue, 27, 17);
+    displayApp->displayNumber(score, Green, 36, 17, BigFont);
 }
 
-bool Game::moveTiles(Directions direction)
+bool Game::moveTiles(Direction direction)
 {
     moved = false;
 
@@ -118,6 +117,7 @@ bool Game::moveTiles(Directions direction)
 
 void Game::rotate()
 {
+    //Transpose of the matrix
     int temp[4][4];
 
     for(int i = 0; i < 4 ; i++) {
@@ -129,15 +129,15 @@ void Game::rotate()
     memcpy(grid, temp, sizeof(grid));
 }
 
-void Game::generate()
+void Game::generateNewTile()
 {
     int no,k,l;
     bool generated = false;
 
     while(!generated) {
-        k = rand() % 4;
-        l = rand() % 4;
-        if(grid[k][l] == 0) {
+        k = rand() % 4; //Random row
+        l = rand() % 4; //Random column
+        if(grid[k][l] == 0) { //If the tile is empty, fill it with random number
             no = 2 * ((rand() % 10) + 1);
             if(no < 5) {
                 grid[k][l] = 4;
